@@ -244,3 +244,60 @@ function tokenURI(uint256 tokenId) public view override returns (string memory) 
 Now, I've prepared some images you can choose from to use in your project
 
 <img src="./images/foundry-setup4.png" alt="foundry-setup4" />
+
+Create a new folder in your workspace names `images` (image) and add the image of your choice to this directory.
+
+## IPFS
+
+Let's dive into the Interplanetary File System (IPFS), how it works and what it means for decentralization of data. You can find additional information in the **[IPFS documentation](https://docs.ipfs.io/)**
+
+So, how does IPFS work?
+
+It all starts with the data we want hosted. This can be more or less anything, code, images, some other file, it doesn't matter. As we know, any data can be hashed and this is essentially what IPFS Node's do initially. We provide our data to the IPFS network via a Node and the output is a unique hash that points to the location and details of that data.
+
+Each IPFS Node is once part of a much larger network and each of them constantly communicates to distribute data throughout the network. Any given node can choose to pin particular pieces of data to host/persist on the network.
+
+> ❗ **NOTE**
+> IPFS isn't able to execute logic or perform computation, it only serves as a means of decentralized storage
+
+What we would do then is upload our data to IPFS and then pin it in our node, assuring that the IPFS Hash of the data is available to anyone calling the network.
+
+<img src="./images/ipfs/ipfs1.png" alt="ipfs1" />
+
+Importantly, unlike a blockchain, where every node has a copy of the entire register, IPFS nodes can choose what they want to pin.
+
+### Using IPFS
+
+There are a few ways to actually use IPFS including a CLI installation, a browser companion and even a dedicated desktop application.
+
+Let's go ahead and **[install the IPFS Desktop application](https://docs.ipfs.tech/install/ipfs-desktop/)**. Once installed you should be able to open the application and navigate to a files section that looks like this:
+
+<img src="./images/ipfs/ipfs2.png" alt="ipfs2" />
+
+Pay no mind to all my pictures of cats. If you have no data to view, navigate to import in the top right and select any small file you don't mind being public.
+
+> ❗ **IMPORTANT**
+> Any data uploaded to this service will be _**public**_ by nature.
+
+<img src="./images/ipfs/ipfs3.png" alt="ipfs3" />
+
+Once a file is uploaded, you can click on that file and view that data.
+
+<img src="./images/ipfs/ipfs4.png" alt="ipfs4" />
+
+What makes this _really_ cool, is we can then copy the data's CID (content ID), as seen above and view our data within our browser by entering it into our address bar.
+
+```Solidity
+ipfs://<CID>
+```
+
+> ❗ **NOTE**
+> If you're on firefox, this may not display properly as the address bar converts URLs to lowercase by default, ruining our CID. Test on Brave or Chrome.
+
+Alternatively, if you're having trouble viewing your data directly from the IPFS network you can use the IPFS Gateway. When using a gateway, you're not directly requesting the data from the IPFS Network, you're requesting through another server which makes the request on your behalf, so it brings to question centrality and things again, but I digress. You can view the data via the Gateway with this syntax:
+
+```Solidity
+https://ipfs.io/ipfs/<CID>
+```
+
+<img src="./images/ipfs/ipfs5.png" alt="ipfs5" />

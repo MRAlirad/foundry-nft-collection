@@ -22,7 +22,7 @@ Non-fungible Tokens (NFTs) are a product of the **[ERC721 Token Standard](https:
 
 NFTs are:
 
-* Non-fungible: This means they are explicitly unique from one another and one NFT cannot be interchanged with another
+-   Non-fungible: This means they are explicitly unique from one another and one NFT cannot be interchanged with another
 
 Fungible tokens, like ERC20s are similar to a dollar. Any single dollar can be swapped with any other and no value is lost. NFTs by contrast are unique in themselves with different properties from token to token.
 
@@ -78,9 +78,9 @@ To take this consideration even further, oftentimes marketplaces won't have a me
 
 In General:
 
-* Upload NFT Image to IPFS
-* Create metadata point to that image
-* Set the NFTs tokenUri to point to that metadata
+-   Upload NFT Image to IPFS
+-   Create metadata point to that image
+-   Set the NFTs tokenUri to point to that metadata
 
 ## Foundry Setup
 
@@ -342,7 +342,7 @@ In a previous lesson we discussed tokenUris and I walked you through an example 
 The Pudgy Penguins collection had been using IPFS's Gateway to access their images within the TokenURI
 
 ```js
-"https://ipfs.io/ipfs/QmNf1UsmdGaMbpatQ6toXSkzDpizaGmC9zfunCyoz1enD5/penguin/420.png";
+'https://ipfs.io/ipfs/QmNf1UsmdGaMbpatQ6toXSkzDpizaGmC9zfunCyoz1enD5/penguin/420.png';
 ```
 
 This works, and is often leveraged due to browser compatibily with IPFS, but it's worth noting that this is pointing to a centralized server. If that server goes down, the image data will be unretrievable via the tokenURI call!
@@ -350,7 +350,7 @@ This works, and is often leveraged due to browser compatibily with IPFS, but it'
 A more decentralized way to retrieve the image data is by pointing to the IPFS netwok itself.
 
 ```js
-"ipfs://QmNf1UsmdGaMbpatQ6toXSkzDpizaGmC9zfunCyoz1enD5/penguin/420.png";
+'ipfs://QmNf1UsmdGaMbpatQ6toXSkzDpizaGmC9zfunCyoz1enD5/penguin/420.png';
 ```
 
 ### Doggies
@@ -358,7 +358,7 @@ A more decentralized way to retrieve the image data is by pointing to the IPFS n
 With a better understanding of IPFS and decentralized storage in hand, let get back to our BasicNFT contract. If you want, you can upload your image to IPFS to acquire your own hash. Alternatively, if you want to make things easy on yourself:
 
 ```js
-"ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
+'ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json';
 ```
 
 If you view this in your browser or through the IPFS Desktop App, you should see the tokenURI of our Doggie NFT, it's even got an image assigned already.
@@ -451,3 +451,119 @@ contract DeployBasicNft is Script {
 ```
 
 That's literally all there is to it. Run a quick `forge compile` as a sanity check to assure things build.
+
+## Test the NFTs smart contract
+
+Once the setup is complete, it's time to jump into tests. Writing an array of tests serves to validate the functionality of our contract, we'll start with something simple and verify that our NFT name is set correctly.
+
+Start with the usual boilerplate for our test contract. Create the file `test/BasicNftTest.t.sol`. Our test contract will need to import BasicNft, and our deploy script as well as import and inherit Foundry's `Test.sol`.
+
+```js
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.18;
+
+import {Test} from "forge-std/Test.sol";
+import {BasicNFT} from "../src/BasicNFT.sol";
+import {DeployBasicNft} from "../script/DeployBasicNFT.s.sol";
+
+contract BasicNFTTest is Test {
+  DeployBasicNft public deployer;
+  BasicNFT public basicNft;
+
+  function setUp() public {
+      deployer = new DeployBasicNft();
+      basicNft = deployer.run();
+  }
+}
+```
+
+To confirm that the Name of your NFT is correct, declare a function `testNameIsCorrect` and specify it as public view.
+
+```js
+function testNameIsCorrect() public view {
+  string memory expected = "Doggie";
+  string memory actual = basicNft.name();
+  assert(expected == actual);
+}
+```
+
+Now, you may believe that we can simply do something like the above. We know the ERC721 standard allows us to call the `name` function to verify what what set, so that should be it, right?
+
+We actually run into an issue here.
+
+<img src='./images/basic-nft-tests1.png' alt='basic-nft-tests1' />
+
+### Comparing Strings
+
+If you recall from previous lessons, strings are actually a special data type. Under the hood, strings exist as an array of bytes, arrays can't be compared to arrays in this way, this is limited to primitive data types. Primitive data types include things like int, bool, bytes32, address etc.
+
+So, how do we compare these strings? Since it's an array, we could loop through the elements of the array and compare each of them. This is entirely doable, but it's computationally expensive and going take a long time if the strings were very large!
+
+A more elegant approach would be to encode each of our string objects into a hash and compare the hashes.
+
+This is a point where I may use Foundry's tool, chisel, to sanity check myself as I go.
+
+```bash
+chisel
+```
+
+Use chisel to create a couple simple strings
+
+```bash
+string memory cat = "cat";
+string memory dog = "dog";
+```
+
+Now if you type `cat`, you should get a kinda crazy output that's representing the hex of that string.
+
+<img src='./images/basic-nft-tests2.png' alt='basic-nft-tests2' />
+
+We'll leverage abi.encodePacked to convert this to bytes, then finally we can use keccak256 to hash the value into bytes32, which we can can use in our value comparison.
+
+<img src='./images/basic-nft-tests3.png' alt='basic-nft-tests3' />
+
+> ❗ **NOTE**
+> I know we haven't covered encoding or abi.encodePacked in great detail yet, but don't worry - we will.
+
+If we apply this encoding and hashing methodology to our BasicNft test, we should come out with something that looks like this:
+
+```js
+function testNameIsCorrect() public view {
+  string memory expectedName = "Doggie";
+  string memory actualName = basicNft.name();
+
+  assert(keccak256(abi.encodePacked(expectedName)) == keccak256(abi.encodePacked(actualName)));
+}
+```
+
+In the above, we're encoding and hashing both of our strings before comparing them in our assertion. Now, if we run our test with `forge test --mt testNameIsCorrect`...
+
+<img src='./images/basic-nft-tests4.png' alt='basic-nft-tests4' />
+
+Great work! Let's write a couple more tests together.
+
+### Testing Mint and Balance
+
+The next test we write will assure a user can mint the NFT and then change the user's balance. We'll need to create a user to prank in our test. Additionally, we'll need to provide our mint function a tokenUri, I've provided one below for convenience. If you've one prepared from the previous lesson, feel free to use it!
+
+```js
+contract BasicNftTest is Test {
+  ...
+  address public USER = makeAddr("user");
+  string public constant PUG =
+      "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
+  ...
+  function testCanMintAndHaveABalance() public {
+    vm.prank(USER);
+    basicNft.mintNft(PUG);
+
+    assert(basicNft.balanceOf(USER) == 1);
+    assert(keccak256(abi.encodePacked(PUG)) == keccak256(abi.encodePacked(basicNft.tokenURI(0))));
+  }
+}
+```
+
+With this, we again should just be able to run `forge test` and see how things resolve.
+
+<img src='./images/basic-nft-tests5.png' alt='basic-nft-tests5' />

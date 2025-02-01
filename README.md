@@ -998,10 +998,67 @@ dmc+
 
 Append our prefix `data:image/svg+xml;base64,` and view the images in your browser to assure things are working as expected!
 
-### Wrap Up
+## Create a dynamic NFTs collection
 
-This is more like what we'd expect to see in a TokenURI, and it's small enough that we can reasonable store this data directly on-chain! As an additional bonus to storing this data on chain and SVGs basically being code is ... we can interact with this data and change it programmatically! It just keep getting cooler.
+Ok, we've gained lots of context and understand about data storage in general and the benefits of `SVGs` specifically. Let's begin creating our very own dynamic `MoodNFT` with its `SVG` art stored on-chain.
 
-In the next lesson we'll go over creating an NFT, leveraging on-chain data allowing it to be _dynamic_.
+At the core of the NFT we'll build is a `flipMood` function which allows the owner to flip their NFT between happy and sad images.
 
-Let's go!
+<img src='./images/svg-nft/svg-nft1.png' alt='svg-nft1' />
+
+Start with creating the file `src/MoodNft.sol` and filling out the usual boilerplate. We're definitely getting good at this by now.
+
+```js
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.18;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract MoodNft is ERC721 {
+    constructor() ERC721("Mood NFT", "MN"){}
+}
+```
+
+Looking good! We want to store the `SVG` art on chain, we're actually going to pass these to our `constructor` on deployment.
+
+```js
+constructor(string memory sadSvg, string memory happySvg) ERC721("Mood NFT", "MN"){}
+```
+
+We know we'll need a `tokenCounter`, along with this let's declare our `sadSvg` and `happySvg` as storage variables as well. All together, before getting into our functions, things should look like this:
+
+```js
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.18;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract MoodNft is ERC721 {
+    string private s_sadSvgImageUri;
+    string private s_happySvgImageUri;
+    uint256 private s_tokenCounter;
+
+    constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN"){
+        s_tokenCounter = 0;
+        s_sadSvgImageU  ri = sadSvgImageUri;
+        s_happySvgImag  eUri = happySvgImageUri;
+    }
+}
+```
+
+Now we need a `mint` function, anyone should be able to call it, so it should definitely be `public`. This shouldn't be anything especially new to us so far.
+
+```js
+function mintNft() public {
+    _safeMint(msg.sender, s_tokenCounter);
+    s_tokenCounter++;
+}
+```
+
+And now the moment of truth! As we write the `tokenURI` function, we know this is what defines what our NFT looks like and the metadata associated with it. Remember that we'll need to `override` this `virtual` function of the `ERC721` standard.
+
+```js
+function tokenURI(uint256 tokenId) public view override returns (string memory){}
+```

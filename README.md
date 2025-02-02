@@ -1309,3 +1309,39 @@ Logs:
 This looks pretty good! If we paste this into our browser we should see...
 
 <img src='./images/svg-nft-encoding/svg-nft-encoding2.png' alt='svg-nft-encoding2' />
+
+## Modify the NFT image onchain (flip mode)
+
+With the assurance that our tokenURI function is returning a correctly formatting string, for both our tokenURI itself _and_ our imageURI, I think we're ready to make this NFT dynamic!
+
+Because our SVGs are on-chain, this affords us the ability to easily swap between them by calling a function. Let's write that function now.
+
+Our first consideration should be that _only the owner_ of an NFT should be able to flip its mood.
+
+```js
+function flipMood(uint256 tokenId) public {
+    // Fetch the owner of the token
+    address owner = ownerOf(tokenId);
+    // Only want the owner of NFT to change the mood.
+    _checkAuthorized(owner, msg.sender, tokenId);
+}
+```
+
+From here, we'll just check if it NFT is happy, and if so, make it sad, otherwise we'll make it happy. This will flip the NFT's mood regardless of it's current mood.
+
+```js
+function flipMood(uint256 tokenId) public {
+    // Fetch the owner of the token
+    address owner = ownerOf(tokenId);
+    // Only want the owner of NFT to change the mood.
+    _checkAuthorized(owner, msg.sender, tokenId);
+
+    if (s_tokenIdToMood[tokenId] == Mood.Happy) {
+        s_tokenIdToMood[tokenId] = Mood.Sad;
+    } else {
+        s_tokenIdToMood[tokenId] = Mood.Happy;
+    }
+}
+```
+
+## 

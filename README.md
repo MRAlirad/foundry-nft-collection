@@ -1609,10 +1609,7 @@ Hmm, this gives us a little more information, detailing that our assertion faile
 This is where I like to employ `assertEq` instead of `assert` as this will print both the left and right sides of the assertion to our console.
 
 ```js
-assertEq(
-  keccak256(abi.encodePacked(moodNft.tokenURI(0))),
-  keccak256(abi.encodePacked(SAD_SVG_URI))
-);
+assertEq(keccak256(abi.encodePacked(moodNft.tokenURI(0))), keccak256(abi.encodePacked(SAD_SVG_URI)));
 ```
 
 Let's run it again.
@@ -1688,3 +1685,62 @@ Your second call to action is going to be increasing the coverage of our contrac
 
 <img src='./images/svg-debug/svg-debug6.png' alt='svg-debug6' />
 
+## Deploy and interact using Anvil
+
+> ❗ **NOTE**
+> I recommend following along on `anvil` instead of sepolia, testnets can be slow and problematic, everything we're doing should work locally.
+
+We can start by kicking off our anvil chain. This has already been configured in our `Makefile`, so we should just have to run `make anvil`
+
+Once the chain is running, open a new terminal (while leaving this one open). We'll have to add some commands to our `Makefile` before proceeding.
+
+```js
+deployMood:
+	@forge script script/DeployMoodNft.s.sol:DeployMoodNft $(NETWORK_ARGS)
+```
+
+Looks great! Remember, you can add anvil as at network to Metamask by navigating to your network selector and choosing `+ Add network`.
+
+<img src='./images/svg-anvil/svg-anvil2.png' alt='svg-anvil2' />
+
+Choose to add a network manually and enter the details as shown below:
+
+<img src='./images/svg-anvil/svg-anvil3.png' alt='svg-anvil3' />
+
+If you need to import an anvil account, this is simple as well. When an anvil chain is spun up, it provides you with public and private keys for a number of default accounts. In your Metamask account selector, choose `+ add account or hardware wallet`
+
+<img src='./images/svg-anvil/svg-anvil4.png' alt='svg-anvil4' />
+
+Select `import account` and enter one of the default private keys offered by the anvil chain.
+
+<img src='./images/svg-anvil/svg-anvil5.png' alt='svg-anvil5' />
+
+Once everything is set up, we should be able to run `make deployMood`...
+
+<img src='./images/svg-anvil/svg-anvil1.png' alt='svg-anvil1' />
+
+With the contract address, we should be able to use a cast command to interact with it.
+
+```bash
+cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 "mintNft()" --private-key ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://localhost:8545
+```
+
+When that transaction completes, what we can _finally_ do, is take that contract address, go back into `Metamask > NFTs > Import NFT`. This is going to ask for our contract address, which we have from our deployment, and our tokenId, which is 0.
+
+Once imported ...
+
+<img src='./images/svg-anvil/svg-anvil6.png' alt='svg-anvil6' />
+
+LETS GOOOO! Now we need to flip it. We should be able to use largely the same `cast` command, let's just adjust the function to `flipMood`
+
+```bash
+cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 "flipMood(uint256)" 0 --private-key ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --
+rpc-url http://localhost:8545
+```
+
+> ❗ **NOTE**
+> For Metamask to reflect the change, we'll regrettably have to remove and readd the NFT collection.
+
+Once we reimport our NFT however...
+
+<img src='./images/svg-anvil/svg-anvil7.png' alt='svg-anvil7' />

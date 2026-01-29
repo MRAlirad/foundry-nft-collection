@@ -26,7 +26,7 @@ NFTs are:
 
 Fungible tokens, like ERC20s are similar to a dollar. Any single dollar can be swapped with any other and no value is lost. NFTs by contrast are unique in themselves with different properties from token to token.
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > Think of NFTs like Pokemon! No two Pikachus are exactly the same and there are many different types within the same class or collection. Other comparisons include: trading cards, unique pieces of art
 
 ### What's an NFT do?
@@ -216,7 +216,7 @@ It's this metadata that defines what the properties of the NFT are, including wh
 
 What this means to us is - any time someone mints a Doggie NFT, we need to assign a TokenURI to the minted TokenID which contains all the important information about the Doggie. Let's consider what this function would look like.
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > The OpenZeppelin implementation of ERC721, which we've imported, has it's own virtual tokenURI function which we'll be overriding.
 
 By navigating to any NFT on OpenSea, you can find a link to the collection's contract on Etherscan. Click on `Read Contract` and find the tokenURI function (here's a link to **[Pudgy Penguins](https://etherscan.io/address/0xbd3531da5cf5857e7cfaa92426877b022e612cf8#readContract)** if you need it).
@@ -257,7 +257,7 @@ It all starts with the data we want hosted. This can be more or less anything, c
 
 Each IPFS Node is once part of a much larger network and each of them constantly communicates to distribute data throughout the network. Any given node can choose to pin particular pieces of data to host/persist on the network.
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > IPFS isn't able to execute logic or perform computation, it only serves as a means of decentralized storage
 
 What we would do then is upload our data to IPFS and then pin it in our node, assuring that the IPFS Hash of the data is available to anyone calling the network.
@@ -276,7 +276,7 @@ Let's go ahead and **[install the IPFS Desktop application](https://docs.ipfs.te
 
 Pay no mind to all my pictures of cats. If you have no data to view, navigate to import in the top right and select any small file you don't mind being public.
 
-> ❗ **IMPORTANT**
+> ❗ **IMPORTANT** <br />
 > Any data uploaded to this service will be _**public**_ by nature.
 
 <img src="./images/ipfs/ipfs3.png" alt="ipfs3" />
@@ -291,7 +291,7 @@ What makes this _really_ cool, is we can then copy the data's CID (content ID), 
 ipfs://<CID>
 ```
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > If you're on firefox, this may not display properly as the address bar converts URLs to lowercase by default, ruining our CID. Test on Brave or Chrome.
 
 Alternatively, if you're having trouble viewing your data directly from the IPFS network you can use the IPFS Gateway. When using a gateway, you're not directly requesting the data from the IPFS Network, you're requesting through another server which makes the request on your behalf, so it brings to question centrality and things again, but I digress. You can view the data via the Gateway with this syntax:
@@ -523,7 +523,7 @@ We'll leverage abi.encodePacked to convert this to bytes, then finally we can us
 
 <img src='./images/basic-nft-tests3.png' alt='basic-nft-tests3' />
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > I know we haven't covered encoding or abi.encodePacked in great detail yet, but don't worry - we will.
 
 If we apply this encoding and hashing methodology to our BasicNft test, we should come out with something that looks like this:
@@ -592,7 +592,7 @@ forge install Cyfrin/foundry-devops --no-commit
 
 Now, we can import `DevOpsTools` and use this to acquire our most recent deployment. We'll use this address as a parameter for the `mint` function we'll call.
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > I've copied over my `PUG tokenUri` for use in our `mint` function, remember to copy your own over too!
 
 ```js
@@ -623,7 +623,7 @@ contract MintBasicNft is Script{
 }
 ```
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > Remember, if you don't recall which parameters are required for a function like `get_most_recent_deployment` you can `ctrl + left-click` (`cmd + click`) to be brought to the function definition.
 
 ## Basic NFT Testnet Demo
@@ -698,7 +698,7 @@ flipMoodNft:
 
 Assuming our `.env` is ready to go, we should be able to run the following...
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > Remember to add the required environment variables if necessary. You should need a `sepolia RPC-URL`, an `account private key` and an `etherscan api key`.
 
 ```bash
@@ -709,7 +709,7 @@ make deploy ARGS="--network sepolia"
 
 With a contract deployed, this transaction data, including the contract address is added to our `broadcast` folder within run-latest.json. This is how our `DevOpsTool` acquires the most recent contract deployment. We should now be able to use our `Interactions.s.sol` script to mint ourselves an NFT.
 
-> ❗ **IMPORTANT**
+> ❗ **IMPORTANT** <br />
 > Add `fs_permissions = [{ access = "read", path = "./broadcast" }]` to your `foundry.toml` or DevOpsTools won't have the permissions necessary to function correctly! This is more safe than `FFI=true`.
 
 ```bash
@@ -821,14 +821,14 @@ Once uploaded, `Pinata` will provide a `CID`, just like `IPFS` itself will.
 
 <img src='./images/ipfs-https/ipfs-https3.png' alt='ipfs-https3' />
 
-> ❗ **PROTIP**
+> ❗ **PROTIP**  <br />
 > Whenever I work on a project, I will upload my images/data both to my local `IPFS` node as well as `Pinata` to assure the data is always pinned _somewhere_.
 
 <img src='./images/ipfs-https/ipfs-https4.png' alt='ipfs-https4' />
 
 ## What is an SVG?
 
-o understand what an `SVG` is, we'll dive right into a helpful tutorial from our friends at [W3Schools](https://www.w3schools.com/graphics/svg_intro.asp). SVG stands for `Scalable Vector Graphics`. In 'simple' terms, SVG is a way to define images in a two-dimensional space using XML coded tags with specific parameters.
+To understand what an `SVG` is, we'll dive right into a helpful tutorial from our friends at [W3Schools](https://www.w3schools.com/graphics/svg_intro.asp). SVG stands for `Scalable Vector Graphics`. In 'simple' terms, SVG is a way to define images in a two-dimensional space using XML coded tags with specific parameters.
 
 **SVG Example:**
 
@@ -861,7 +861,7 @@ SVGs are awesome because they maintain their quality, no matter what size you ma
 
 I encourage you to play with editing the parameters in the **[W3Schools SVG Demo](https://www.w3schools.com/graphics/tryit.asp?filename=trysvg_myfirst)**. Experiment with how the different parameters can change your image! There's lots of documentation on that website detailing all the tags and features one could add to an SVG.
 
-## Creating Your Own SVG
+### Creating Your Own SVG
 
 Let's look at how we can create our own simple SVG, right in our IDE. Create the file `img/example.svg`. We can use the `<svg>` tag to define what our simple image will look like.
 
@@ -881,14 +881,14 @@ Let's look at how we can create our own simple SVG, right in our IDE. Create the
 </svg>
 ```
 
-> ❗ **IMPORTANT**
+> ❗ **IMPORTANT**<br />
 > You will likely need to download a SVG preview extension to view the SVG in your IDE. I recommend trying **[SVG Preview](https://marketplace.visualstudio.com/items?itemName=SimonSiefke.svg-preview)**.
 
 <img src='./images/what-is-svg/what-is-svg2.png' alt='what-is-svg2' />
 
 Importantly, this SVG code _**is not**_ a URI, but we can convert this into a URI that a browser can understand by passing all the necessary data through the URL of our browser.
 
-### Converting to a URI
+#### Converting to a URI
 
 In your terminal, enter the command `base64 --help` to determine if you have base64 installed, this isn't compatible with all computers, so if you don't have it available, you can copy the encoding I've provided below.
 
@@ -958,7 +958,7 @@ This same process can be applied to our SVG images for our NFTs. You can navigat
 </svg>
 ```
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > If you don't have happy.svg and sad.svg images within your img folder, now would be a great time to create them! Copy the SVG code from the **[GitHub Repo](https://github.com/Cyfrin/foundry-nft-f23/tree/main/images/dynamicNft)**!
 
 Once we have both of these images in our workspace, we can run our base64 commands to encode them (those without base64, feel free to grab the encodings below):
@@ -1008,7 +1008,7 @@ At the core of the NFT we'll build is a `flipMood` function which allows the own
 
 Start with creating the file `src/MoodNFT.sol` and filling out the usual boilerplate. We're definitely getting good at this by now.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1022,13 +1022,13 @@ contract MoodNFT is ERC721 {
 
 Looking good! We want to store the `SVG` art on chain, we're actually going to pass these to our `constructor` on deployment.
 
-```js
-constructor(string memory sadSvg, string memory happySvg) ERC721("Mood NFT", "MN"){}
+```solidity
+constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN"){}
 ```
 
 We know we'll need a `tokenCounter`, along with this let's declare our `sadSvg` and `happySvg` as storage variables as well. All together, before getting into our functions, things should look like this:
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1050,7 +1050,7 @@ contract MoodNFT is ERC721 {
 
 Now we need a `mint` function, anyone should be able to call it, so it should definitely be `public`. This shouldn't be anything especially new to us so far.
 
-```js
+```solidity
 function mintNft() public {
     _safeMint(msg.sender, s_tokenCounter);
     s_tokenCounter++;
@@ -1059,7 +1059,7 @@ function mintNft() public {
 
 And now the moment of truth! As we write the `tokenURI` function, we know this is what defines what our NFT looks like and the metadata associated with it. Remember that we'll need to `override` this `virtual` function of the `ERC721` standard.
 
-```js
+```solidity
 function tokenURI(uint256 tokenId) public view override returns (string memory){}
 ```
 
@@ -1077,8 +1077,8 @@ SadSVG:
 data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBmaWxsPSIjMzMzIiBkPSJNNTEyIDY0QzI2NC42IDY0IDY0IDI2NC42IDY0IDUxMnMyMDAuNiA0NDggNDQ4IDQ0OCA0NDgtMjAwLjYgNDQ4LTQ0OFM3NTkuNCA2NCA1MTIgNjR6bTAgODIwYy0yMDUuNCAwLTM3Mi0xNjYuNi0zNzItMzcyczE2Ni42LTM3MiAzNzItMzcyIDM3MiAxNjYuNiAzNzIgMzcyLTE2Ni42IDM3Mi0zNzIgMzcyeiIvPgogIDxwYXRoIGZpbGw9IiNFNkU2RTYiIGQ9Ik01MTIgMTQwYy0yMDUuNCAwLTM3MiAxNjYuNi0zNzIgMzcyczE2Ni42IDM3MiAzNzIgMzcyIDM3Mi0xNjYuNiAzNzItMzcyLTE2Ni42LTM3Mi0zNzItMzcyek0yODggNDIxYTQ4LjAxIDQ4LjAxIDAgMCAxIDk2IDAgNDguMDEgNDguMDEgMCAwIDEtOTYgMHptMzc2IDI3MmgtNDguMWMtNC4yIDAtNy44LTMuMi04LjEtNy40QzYwNCA2MzYuMSA1NjIuNSA1OTcgNTEyIDU5N3MtOTIuMSAzOS4xLTk1LjggODguNmMtLjMgNC4yLTMuOSA3LjQtOC4xIDcuNEgzNjBhOCA4IDAgMCAxLTgtOC40YzQuNC04NC4zIDc0LjUtMTUxLjYgMTYwLTE1MS42czE1NS42IDY3LjMgMTYwIDE1MS42YTggOCAwIDAgMS04IDguNHptMjQtMjI0YTQ4LjAxIDQ4LjAxIDAgMCAxIDAtOTYgNDguMDEgNDguMDEgMCAwIDEgMCA5NnoiLz4KICA8cGF0aCBmaWxsPSIjMzMzIiBkPSJNMjg4IDQyMWE0OCA0OCAwIDEgMCA5NiAwIDQ4IDQ4IDAgMSAwLTk2IDB6bTIyNCAxMTJjLTg1LjUgMC0xNTUuNiA2Ny4zLTE2MCAxNTEuNmE4IDggMCAwIDAgOCA4LjRoNDguMWM0LjIgMCA3LjgtMy4yIDguMS03LjQgMy43LTQ5LjUgNDUuMy04OC42IDk1LjgtODguNnM5MiAzOS4xIDk1LjggODguNmMuMyA0LjIgMy45IDcuNCA4LjEgNy40SDY2NGE4IDggMCAwIDAgOC04LjRDNjY3LjYgNjAwLjMgNTk3LjUgNTMzIDUxMiA1MzN6bTEyOC0xMTJhNDggNDggMCAxIDAgOTYgMCA0OCA0OCAwIDEgMC05NiAweiIvPgo8L3N2Zz4=
 ```
 
-> ❗ **NOTE**
-> Those who have decided to use their own custom SVG images, remember you can acquire the encoding with the command `base64 -i <filename>` while in the `img` directory!
+> ❗ **NOTE** <br />
+> Those who have decided to use their own custom SVG images, remember you can acquire the encoding with the command `base64 -i <filename>` while in the `images` directory!
 
 Now, if we're going to be passing _already encoded_ imageURIs to our constructor, it's probably a good idea to adjust the naming of our storage variables for clarity. Let's do this before moving on.
 
@@ -1095,7 +1095,9 @@ contract MoodNFT is ERC721 {
 }
 ```
 
-> ❗ **IMPORTANT** > **tokenURI != imageURI**
+> ❗ **IMPORTANT**
+>
+> **tokenURI != imageURI**
 >
 > It's important to remember that imageURI is one property of a token's tokenURI. A tokenURI is usually a JSON object!
 
@@ -1105,13 +1107,13 @@ OpenZeppelin actually offers a **[Utilities](https://docs.openzeppelin.com/contr
 
 We've already got OpenZeppelin contracts installed, so we can just import Base64 into our NFT contract.
 
-```js
+```solidity
 import { Base64 } from '@openzeppelin/contracts/utils/Base64.sol';
 ```
 
 Let's start off our tokenURI function by defining a variable, `string memory tokenMetadata`. We can set this equal to our JSON object in string format like so:
 
-```js
+```solidity
 string memory tokenMetadata = abi.encodePacked(
     '{"name: "',
     name(),
@@ -1260,7 +1262,7 @@ contract MoodNftTest is Test {
 
 Finally we can write a test function. All that's required is to mint one of our MoodNFT tokens, and then we can console out the tokenURI of that tokenId(0)! We'll need to create a user to do this.
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > Don't forget to import `console`!
 >
 > ```Solidity

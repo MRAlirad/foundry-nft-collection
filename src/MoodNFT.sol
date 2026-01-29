@@ -4,9 +4,7 @@ pragma solidity ^0.8.18;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 
-
 contract MoodNFT is ERC721{
-
     uint256 private s_tokenCounter;
     string private s_sadSvgImageUri;
     string private s_happySvgImageUri;
@@ -15,7 +13,7 @@ contract MoodNFT is ERC721{
         Happy,
         Sad
     }
-    
+
     mapping (uint256 => Mood) private s_tokenIdToMood;
 
     constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN"){

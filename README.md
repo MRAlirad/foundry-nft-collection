@@ -61,7 +61,7 @@ Now, when we talk about NFT representing _Art_ that comes with some implications
 
 The solution to this was the inclusion of the tokenUri within the ERC721 Standard. This serves as a property of a token which details what the asset looks like as well as any attributes associated with it. A basic tokenUri looks something like:
 
-```js
+```json
 {
     "name": "Name",
     "description": "Description",
@@ -306,7 +306,7 @@ https://ipfs.io/ipfs/<CID>
 
 In a previous lesson we discussed tokenUris and I walked you through an example of viewing the TokenURI of a token on OpenSea.
 
-```js
+```json
 {
   "attributes": [
     {
@@ -366,7 +366,7 @@ If you view this in your browser or through the IPFS Desktop App, you should see
 > ❗ **PROTIP** <br />
 > If you do decide to upload your own data to IPFS, you'll need to upload your image first to acquire an imageURI/hash. You'll then upload a tokenURI json containing this pointer to your image.
 
-```js
+```json
 {
     "name": "PUG",
     "description": "An adorable PUG pup!",
@@ -382,7 +382,7 @@ If you view this in your browser or through the IPFS Desktop App, you should see
 
 Now, we could just paste the about tokenURI as a return value of our tokenUri function, but this would mint every Doggie identical to eachother. Let's spice things up a little bit and allow the user to choose what their NFT looks like. We'll do this by allowing the user to pass a tokenUri to the mint function and mapping this URI to their minted tokenId.
 
-```js
+```solidity
 contract BasicNFT is ERC721 {
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
@@ -405,7 +405,7 @@ contract BasicNFT is ERC721 {
 
 Great! All that's missing is to mint the NFT and increment our token counter. We can mint the token by calling the inherited \_safeMint function.
 
-```js
+```solidity
 contract BasicNFT is ERC721 {
     uint256 private s_tokenCounter;
     mapping(uint256 => string) private s_tokenIdToUri;
@@ -432,7 +432,7 @@ contract BasicNFT is ERC721 {
 
 The muscle memory should be kicking in for some of these deploy scripts by now. Let's not waste any time setting this one up! Create a new file `script/DeployBasicNft.s.sol`.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -458,7 +458,7 @@ Once the setup is complete, it's time to jump into tests. Writing an array of te
 
 Start with the usual boilerplate for our test contract. Create the file `test/BasicNftTest.t.sol`. Our test contract will need to import BasicNft, and our deploy script as well as import and inherit Foundry's `Test.sol`.
 
-```js
+```solidity
 //SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -468,23 +468,23 @@ import {BasicNFT} from "../src/BasicNFT.sol";
 import {DeployBasicNft} from "../script/DeployBasicNFT.s.sol";
 
 contract BasicNFTTest is Test {
-  DeployBasicNft public deployer;
-  BasicNFT public basicNft;
+    DeployBasicNft public deployer;
+    BasicNFT public basicNft;
 
-  function setUp() public {
-      deployer = new DeployBasicNft();
-      basicNft = deployer.run();
-  }
+    function setUp() public {
+        deployer = new DeployBasicNft();
+        basicNft = deployer.run();
+    }
 }
 ```
 
 To confirm that the Name of your NFT is correct, declare a function `testNameIsCorrect` and specify it as public view.
 
-```js
+```solidity
 function testNameIsCorrect() public view {
-  string memory expected = "Doggie";
-  string memory actual = basicNft.name();
-  assert(expected == actual);
+    string memory expected = "Doggie";
+    string memory actual = basicNft.name();
+    assert(expected == actual);
 }
 ```
 
@@ -528,12 +528,12 @@ We'll leverage abi.encodePacked to convert this to bytes, then finally we can us
 
 If we apply this encoding and hashing methodology to our BasicNft test, we should come out with something that looks like this:
 
-```js
+```solidity
 function testNameIsCorrect() public view {
-  string memory expectedName = "Doggie";
-  string memory actualName = basicNft.name();
+    string memory expectedName = "Doggie";
+    string memory actualName = basicNft.name();
 
-  assert(keccak256(abi.encodePacked(expectedName)) == keccak256(abi.encodePacked(actualName)));
+    assert(keccak256(abi.encodePacked(expectedName)) == keccak256(abi.encodePacked(actualName)));
 }
 ```
 
@@ -547,20 +547,20 @@ Great work! Let's write a couple more tests together.
 
 The next test we write will assure a user can mint the NFT and then change the user's balance. We'll need to create a user to prank in our test. Additionally, we'll need to provide our mint function a tokenUri, I've provided one below for convenience. If you've one prepared from the previous lesson, feel free to use it!
 
-```js
+```solidity
 contract BasicNftTest is Test {
-  ...
-  address public USER = makeAddr("user");
-  string public constant PUG =
-      "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
-  ...
-  function testCanMintAndHaveABalance() public {
-    vm.prank(USER);
-    basicNft.mintNft(PUG);
+    ...
+    address public USER = makeAddr("user");
+    string public constant PUG =
+        "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
+    ...
+    function testCanMintAndHaveABalance() public {
+        vm.prank(USER);
+        basicNft.mintNft(PUG);
 
-    assert(basicNft.balanceOf(USER) == 1);
-    assert(keccak256(abi.encodePacked(PUG)) == keccak256(abi.encodePacked(basicNft.tokenURI(0))));
-  }
+        assert(basicNft.balanceOf(USER) == 1);
+        assert(keccak256(abi.encodePacked(PUG)) == keccak256(abi.encodePacked(basicNft.tokenURI(0))));
+    }
 }
 ```
 
@@ -572,7 +572,7 @@ With this, we again should just be able to run `forge test` and see how things r
 
 Alright, with our tests passing we're going to want a way to interact with our contract programmatically. We could use `cast` commands, but let's write an interactions script instead. Create the file `script/Interactions.s.sol`. You know the drill for our boilerplate by now.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -595,7 +595,7 @@ Now, we can import `DevOpsTools` and use this to acquire our most recent deploym
 > ❗ **NOTE** <br />
 > I've copied over my `PUG tokenUri` for use in our `mint` function, remember to copy your own over too!
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -832,7 +832,7 @@ To understand what an `SVG` is, we'll dive right into a helpful tutorial from ou
 
 **SVG Example:**
 
-```js
+```html
 <html>
 	<body>
 		<h1>My first SVG</h1>
@@ -865,7 +865,7 @@ I encourage you to play with editing the parameters in the **[W3Schools SVG Demo
 
 Let's look at how we can create our own simple SVG, right in our IDE. Create the file `img/example.svg`. We can use the `<svg>` tag to define what our simple image will look like.
 
-```js
+```html
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	width="500"
@@ -924,7 +924,7 @@ This same process can be applied to our SVG images for our NFTs. You can navigat
 
 **Happy.svg**
 
-```js
+```html
 <svg
 	viewBox="0 0 200 200"
 	width="400"
@@ -1082,7 +1082,7 @@ data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgdmlld0
 
 Now, if we're going to be passing _already encoded_ imageURIs to our constructor, it's probably a good idea to adjust the naming of our storage variables for clarity. Let's do this before moving on.
 
-```js
+```solidity
 contract MoodNFT is ERC721 {
     uint256 private s_tokenCounter;
     string private s_sadSvgImageUri;
@@ -1127,7 +1127,7 @@ In the above, we're using `abi.encodePacked` to concatenate our disparate string
 
 In order to determine our imageURI we'll need to derive this from the mood which has been set to our NFT token. As such, we're going to need a way to track the mood of each token. This sounds like a mapping to me. We can even spice it up a little bit and map our choice to an `enum`, which would allow someone to set more moods, if they wanted to expand on things in the future.
 
-```js
+```solidity
 contract MoodNFT is ERC721 {
     uint256 private s_tokenCounter;
     string private s_sadSvgImageUri;
@@ -1144,7 +1144,7 @@ contract MoodNFT is ERC721 {
 
 When an NFT is minted, they'll need a default mood, let's default them to happy.
 
-```js
+```solidity
 function mintNft() public {
     _safeMint(msg.sender, s_tokenCounter);
     s_tokenIdToMood[s_tokenCounter] = Mood.HAPPY;
@@ -1154,7 +1154,7 @@ function mintNft() public {
 
 Now, back in our tokenURI function, we can define a conditional statement which will derive what our imageURI should be.
 
-```js
+```solidity
 function tokenURI(uint256 tokenId) public view override returns (string memory){
     string memory imageURI;
     if (s_tokenIfToMood[tokenId] == HAPPY) {
@@ -1180,19 +1180,19 @@ This is where things might get a little wild.
 
 Currently we have a string, in order to acquire the Base64 hash of this data, we need to first convert this string to bytes, we can do this with some typecasting.
 
-```js
+```solidity
 bytes(abi.encodePacked('{"name: "', name(), '", description: "An NFT that reflects your mood!", "attributes": [{"trait_type": "Mood", "value": 100}], "image": ', imageURI, '"}'));
 ```
 
 Now we can apply our Base64 encoding to acquire our hash.
 
-```js
+```solidity
 Base64.encode(bytes(abi.encodePacked('{"name: "', name(), '", description: "An NFT that reflects your mood!", "attributes": [{"trait_type": "Mood", "value": 100}], "image": ', imageURI, '"}')));
 ```
 
 At this point, our tokenURI data is formatting like our imageUris were. If you recall, we needed to prepend our data type prefix(`data:image/svg+xml;base64,`) to our Base64 hash in order for a browser to understand. A similar methodology applies to our tokenURI JSON but with a different prefix. Let's define a method to return this string for us. Fortunately the ERC721 standard has a \_baseURI function that we can override.
 
-```js
+```solidity
 function _baseURI() internal pure override returns(string memory){
     return "data:application/json;base64,"
 }
@@ -1200,7 +1200,7 @@ function _baseURI() internal pure override returns(string memory){
 
 Now, in our tokenURI function again, we can concatenate the result of this \_baseURI function with the Base64 encoding of our JSON object... and finally we can type cast all of this as a string to be returned by our tokenURI function.
 
-```js
+```solidity
 return string(
 	abi.encodePacked(
 		_baseURI(),
@@ -1223,7 +1223,7 @@ Admittedly, this is a lot at once. Before we add any more functionality, let's c
 
 Given the complexity of our tokenURI function, let's take a moment to write a quick test and assure it's returning what we'd expect it to. Create the file `test/MoodNftTest.t.sol` and set up our usual boilerplate.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1241,7 +1241,7 @@ contract MoodNftTest is Test {
 
 We'll need to declare our Happy and Sad SVG URIs as constants in our test, we can use these in the deployment of our MoodNFT contract within the setUp function of our Test.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1269,7 +1269,7 @@ Finally we can write a test function. All that's required is to mint one of our 
 > import {Test, console} from "forge-std/Test.sol";`
 > ```
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1320,7 +1320,7 @@ Because our SVGs are on-chain, this affords us the ability to easily swap betwee
 
 Our first consideration should be that _only the owner_ of an NFT should be able to flip its mood.
 
-```js
+```solidity
 function flipMood(uint256 tokenId) public {
     // Fetch the owner of the token
     address owner = ownerOf(tokenId);
@@ -1331,7 +1331,7 @@ function flipMood(uint256 tokenId) public {
 
 From here, we'll just check if it NFT is happy, and if so, make it sad, otherwise we'll make it happy. This will flip the NFT's mood regardless of it's current mood.
 
-```js
+```solidity
 function flipMood(uint256 tokenId) public {
     // Fetch the owner of the token
     address owner = ownerOf(tokenId);
@@ -1352,7 +1352,7 @@ In this lesson, we'll jump right into creating the script to deploy our MoodNFT 
 
 To begin, we'll need to create the file `script/DeployMoodNft.s.sol` and fill it with our script boilerplate.
 
-```js
+```solidity
 // SPDX-License-Identifier:MIT
 pragma solidity ^0.8.18;
 
@@ -1368,7 +1368,7 @@ Looks great! Now we should consider how we're mention to deploy MoodNFT.sol. We 
 
 Let's start with creating this encoding function.
 
-```js
+```solidity
 function svgToImageURI(string memory svg) public purse returns (string memory){
     string memory baseURL = "data:image/svg+xml;base64,";
 }
@@ -1376,7 +1376,7 @@ function svgToImageURI(string memory svg) public purse returns (string memory){
 
 Set up like this, we can now use the Base64 offering from OpenZeppelin to encode the data passed to this function, and then concatenate it with our baseURI. We'll need to import Base64.
 
-```js
+```solidity
 // SPDX-License-Identifier:MIT
 pragma solidity ^0.8.18;
 
@@ -1407,7 +1407,7 @@ Before moving on, we should write a quick test to verify this is encoding things
 
 Let's test the function we just wrote. To keep things clean, create a new file `test/DeployMoodNftTest.t.sol`. The setup for this file is going to be the same as always.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1435,18 +1435,18 @@ data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIH
 
 In our test now, we can assign an expectedUri variable to this string. We'll need to also define the svg which we'll pass to the function.
 
-```js
+```solidity
 function testConvertSvgToUri() public view {
-        string memory expectedUri = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48dGV4dCB4PSIyMDAiIHk9IjI1MCIgZmlsbD0id2hpdGUiPkhpISBZb3UgZGVjb2RlZCB0aGlzITwvdGV4dD48L3N2Zz4=";
-        string memory svg = '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="200" y="250" fill="white">Hi! You decoded this!</text></svg>';
+    string memory expectedUri = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj48dGV4dCB4PSIyMDAiIHk9IjI1MCIgZmlsbD0id2hpdGUiPkhpISBZb3UgZGVjb2RlZCB0aGlzITwvdGV4dD48L3N2Zz4=";
+    string memory svg = '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="200" y="250" fill="white">Hi! You decoded this!</text></svg>';
 
-        string memory actualUri = deployer.svgToImageURI(svg);
+    string memory actualUri = deployer.svgToImageURI(svg);
 }
 ```
 
 Great! Now we'll need to assert that our expectedUri is equal to our actualUri. Remember, we can't compare strings directly since they're effectively bytes arrays. We need to hash these for easy comparison.
 
-```js
+```solidity
 assert(keccak256(abi.encodePacked(expectedUri)) == keccak256(abi.encodePacked(actualUri)));
 ```
 
@@ -1471,7 +1471,7 @@ fs_permissions = [{access = "read", path = "./img/"}]
 
 With this in place, we can now use the readFile cheatcode to access these SVG files in our deploy script.
 
-```js
+```solidity
 // SPDX-License-Identifier:MIT
 pragma solidity ^0.8.18;
 
@@ -1496,7 +1496,7 @@ contract DeployMoodNft is Script {
 
 Now we can deploy our MoodNFT.sol contract in our run function, passing it the data read in from these files.
 
-```js
+```solidity
 function run () external returns (MoodNFT) {
     string memory sadSvg = vm.readFile("./img/sadSvg.svg");
     string memory happySvg = vm.readFile("./img/happySvg.svg");
@@ -1524,7 +1524,7 @@ We'll adjust `MoodNftIntegrationsTest.t.sol` to use our deployer next.
 
 The changes to be made in this file are fairly small, but impactful. Instead of deploying with:
 
-```js
+```solidity
 moodNFT = new MoodNFT(SAD_SVG_URI, HAPPY_SVG_URI);
 ```
 
@@ -1533,7 +1533,7 @@ We can use our newly written deployer. It'll need to be imported.
 <details>
 <summary>MoodNftIntegrationsTest.t.sol</summary>
 
-```js
+```solidity
 //SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1574,7 +1574,7 @@ With these adjustments, our tests should function identically to before.
 
 One thing we definitely haven't tested yet, and we should do quickly, is our flipMood function. Lets assure this properly swaps between happy and sad when called.
 
-```js
+```solidity
 function testFlipMoodIntegration() public {
     vm.prank(USER);
     moodNFT.mintNft();
@@ -1610,7 +1610,7 @@ Hmm, this gives us a little more information, detailing that our assertion faile
 
 This is where I like to employ `assertEq` instead of `assert` as this will print both the left and right sides of the assertion to our console.
 
-```js
+```solidity
 assertEq(keccak256(abi.encodePacked(moodNft.tokenURI(0))), keccak256(abi.encodePacked(SAD_SVG_URI)));
 ```
 
@@ -1624,7 +1624,7 @@ forge test --mt testFlipMoodIntegration -vvv
 
 Well, our hashes are definitely different. We can import console and log out some variables to see what's going wrong.
 
-```js
+```solidity
 import {console, Test} from "forge-std/Test.sol";
 ...
 
@@ -1657,7 +1657,7 @@ Let's check the other side of the assertion. We have the SAD_SVG_URI as a consta
 
 Wait a minute! One of these is returning our _**tokenURI**_ and the other is our _**imageURI**_! This is why it's important to be explicit in our naming conventions! Let's adjust these constants, and our test, right away. We can define a variable with what we expect the _**tokenURI**_ to be and assert versus that.
 
-```js
+```solidity
 string public constant SAD_SVG_IMAGE_URI = ...;
 string public constant HAPPY_SVG_IMAGE_URI = ...;
 string public constant SAD_SVG_URI = "data:application/json;base64,eyJuYW1lIjogIkJpUG9sYXIiLCAiZGVzY3JpcHRpb24iOiAiQW4gTkZUIHRoYXQgcmVmbGVjdHMgeW91ciBtb29kISIsICJhdHRyaWJ1dGVzIjogW3sidHJhaXRfdHlwZSI6ICJNb29kIiwgInZhbHVlIjogMTAwfV0sICJpbWFnZSI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlNVEF5TkhCNElpQm9aV2xuYUhROUlqRXdNalJ3ZUNJZ2RtbGxkMEp2ZUQwaU1DQXdJREV3TWpRZ01UQXlOQ0lnZUcxc2JuTTlJbWgwZEhBNkx5OTNkM2N1ZHpNdWIzSm5Mekl3TURBdmMzWm5JajRLSUNBOGNHRjBhQ0JtYVd4c1BTSWpNek16SWlCa1BTSk5OVEV5SURZMFF6STJOQzQySURZMElEWTBJREkyTkM0MklEWTBJRFV4TW5NeU1EQXVOaUEwTkRnZ05EUTRJRFEwT0NBME5EZ3RNakF3TGpZZ05EUTRMVFEwT0ZNM05Ua3VOQ0EyTkNBMU1USWdOalI2YlRBZ09ESXdZeTB5TURVdU5DQXdMVE0zTWkweE5qWXVOaTB6TnpJdE16Y3ljekUyTmk0MkxUTTNNaUF6TnpJdE16Y3lJRE0zTWlBeE5qWXVOaUF6TnpJZ016Y3lMVEUyTmk0MklETTNNaTB6TnpJZ016Y3llaUl2UGdvZ0lEeHdZWFJvSUdacGJHdzlJaU5GTmtVMlJUWWlJR1E5SWswMU1USWdNVFF3WXkweU1EVXVOQ0F3TFRNM01pQXhOall1Tmkwek56SWdNemN5Y3pFMk5pNDJJRE0zTWlBek56SWdNemN5SURNM01pMHhOall1TmlBek56SXRNemN5TFRFMk5pNDJMVE0zTWkwek56SXRNemN5ZWsweU9EZ2dOREl4WVRRNExqQXhJRFE0TGpBeElEQWdNQ0F4SURrMklEQWdORGd1TURFZ05EZ3VNREVnTUNBd0lERXRPVFlnTUhwdE16YzJJREkzTW1ndE5EZ3VNV010TkM0eUlEQXROeTQ0TFRNdU1pMDRMakV0Tnk0MFF6WXdOQ0EyTXpZdU1TQTFOakl1TlNBMU9UY2dOVEV5SURVNU4zTXRPVEl1TVNBek9TNHhMVGsxTGpnZ09EZ3VObU10TGpNZ05DNHlMVE11T1NBM0xqUXRPQzR4SURjdU5FZ3pOakJoT0NBNElEQWdNQ0F4TFRndE9DNDBZelF1TkMwNE5DNHpJRGMwTGpVdE1UVXhMallnTVRZd0xURTFNUzQyY3pFMU5TNDJJRFkzTGpNZ01UWXdJREUxTVM0MllUZ2dPQ0F3SURBZ01TMDRJRGd1TkhwdE1qUXRNakkwWVRRNExqQXhJRFE0TGpBeElEQWdNQ0F4SURBdE9UWWdORGd1TURFZ05EZ3VNREVnTUNBd0lERWdNQ0E1Tm5vaUx6NEtJQ0E4Y0dGMGFDQm1hV3hzUFNJak16TXpJaUJrUFNKTk1qZzRJRFF5TVdFME9DQTBPQ0F3SURFZ01DQTVOaUF3SURRNElEUTRJREFnTVNBd0xUazJJREI2YlRJeU5DQXhNVEpqTFRnMUxqVWdNQzB4TlRVdU5pQTJOeTR6TFRFMk1DQXhOVEV1Tm1FNElEZ2dNQ0F3SURBZ09DQTRMalJvTkRndU1XTTBMaklnTUNBM0xqZ3RNeTR5SURndU1TMDNMalFnTXk0M0xUUTVMalVnTkRVdU15MDRPQzQySURrMUxqZ3RPRGd1Tm5NNU1pQXpPUzR4SURrMUxqZ2dPRGd1Tm1NdU15QTBMaklnTXk0NUlEY3VOQ0E0TGpFZ055NDBTRFkyTkdFNElEZ2dNQ0F3SURBZ09DMDRMalJETmpZM0xqWWdOakF3TGpNZ05UazNMalVnTlRNeklEVXhNaUExTXpONmJURXlPQzB4TVRKaE5EZ2dORGdnTUNBeElEQWdPVFlnTUNBME9DQTBPQ0F3SURFZ01DMDVOaUF3ZWlJdlBnbzhMM04yWno0PSJ9"
@@ -1696,7 +1696,7 @@ We can start by kicking off our anvil chain. This has already been configured in
 
 Once the chain is running, open a new terminal (while leaving this one open). We'll have to add some commands to our `Makefile` before proceeding.
 
-```js
+```makefile
 deployMood:
 	@forge script script/DeployMoodNft.s.sol:DeployMoodNft $(NETWORK_ARGS)
 ```
@@ -1796,7 +1796,7 @@ Until now, we've been using abi.encode and abi.encodePacked effectively as a mea
 
 When ready, in **[Remix](https://remix.ethereum.org)**, create a new file named `Encoding.sol`. We can set this contract up with some boilerplate before writing the functions we'll use to explore encoding and decoding.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -1806,7 +1806,7 @@ contract Encoding {}
 
 Within this contract, let's now right a simple function to concatenate two strings using `abi.encodePacked`.
 
-```js
+```solidity
 function combineStrings() public pure returns(string memory){
     return string(abi.encodePacked("Hi Mom! ", "Miss you!"));
 }
@@ -1881,7 +1881,7 @@ Strictly speaking, we can use abi encoding to encode anything we want into the b
 
 Lets write a function to explore this. In our Encoding.sol file, in Remix add:
 
-```js
+```solidity
 function encodeNumber() public pure returns(bytes memory){
     bytes memory number = abi.encode(1);
     return number;
@@ -1899,7 +1899,7 @@ This hex format, this encoding, is how a computer understands the number `1`.
 
 Now, as mentioned, this can be used to encode basically anything, we can write a function to encode a string and see what it's output would be just the same.
 
-```js
+```solidity
 function encodeString() public pure returns(string memory){
     byte memory someString = abi.encode("some string");
     return someString;
@@ -1930,7 +1930,7 @@ You can kind of think of encodePacked as a compressor which removed unnecessary 
 
 We can demonstrate this in Remix by adding this function, redeploying our Encoding.sol contract and calling it.
 
-```js
+```solidity
 function encodeStringPacked() public pure returns(bytes memory){
     bytes memory someString = abi.encodePacked("some string");
     return someString;
@@ -1943,7 +1943,7 @@ We can clearly see how much smaller the encodePacked output is, if we were tryin
 
 Encoding in this way is very similar to something else we've done before, typecasting. Add this function to Encoding.sol, and redeploy to see how these compare in practice:
 
-```js
+```solidity
 function encodeStringBytes() public pure returns(bytes memory) {
     bytes memory someString = bytes("some string");
     return someString;
@@ -1962,7 +1962,7 @@ From the docs we can see the decode function takes the encoded data and a tuple 
 
 <img src='./images/advanced-evm/advanced-evm11.png' alt='advanced-evm11' />
 
-```js
+```solidity
 function decodeString() public pure returns(string memory) {
     string memory someString = abi.decode(encodeString(), (string));
     return someString;
@@ -1977,7 +1977,7 @@ Once again, we can add this function to our Encoding.sol contract and redeploy i
 
 To take all this one step further, this encoding functionality affords us the ability to encode as much as we want. We can demonstrate this with the following functions:
 
-```js
+```solidity
 function multiEncode() public pure returns(bytes memory){
     bytes memory someString = abi.encode("some string", "it's bigger!");
     return someString;
@@ -1995,7 +1995,7 @@ When we multiEncode, you can see that our output is an _even bigger_ bytes objec
 
 You probably guessed, we can **also** multiEncodePacked. Try it out with:
 
-```js
+```solidity
 function multiEncodePacked() public pure returns (bytes memory){
     bytes memory someString = abi.encodePacked("some string", "it's bigger!");
     return someString;
@@ -2006,7 +2006,7 @@ function multiEncodePacked() public pure returns (bytes memory){
 
 This is actually where our fun stops a little bit. Because we're packing the encoding of multiple strings, the decoding function is unable to properly split these up. It's not possible to multiDecode a multiEncodePacked object 😦. If you try something like:
 
-```js
+```solidity
 function multiDecodePacked() public pure returns (string memory, string memory){
     string memory someString = abi.decode(multiEncodePacked(), (string));
     return someString;
@@ -2015,7 +2015,7 @@ function multiDecodePacked() public pure returns (string memory, string memory){
 
 ... this will actually error. We do have an alternative method though.
 
-```js
+```solidity
 function multiStringCastPacked() public pure returns (string memory){
     string memory someString = string(multiEncodePacked());
     return someString;
@@ -2131,7 +2131,7 @@ Before looking at how we can apply all our new encoding knowledge to call our ow
 
 At a high-level, we learnt that abi.encodePacked can be used to concatenate strings.
 
-```js
+```solidity
 string memory someString = string(abi.encodePacked("Hi Mom! ", "Miss you!"))
 ```
 
@@ -2188,7 +2188,7 @@ When we send a call to an address, the EVM determines how to respond based on th
 
 One way we can acquire the function selector is to encode the entire function signature, and grab the first 4 bytes of the result. Let's see what this looks like in our contract.
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.18;
@@ -2216,7 +2216,7 @@ _**How do we acquire the function selector programmatically?**_
 
 The answer is - we can write a function! There are actually a few different ways we can approach this, let's go through them.
 
-```js
+```solidity
 function getSelectorOne() public pure returns(bytes4 selector){
     selector = bytes4(keccak256(bytes("transfer(address,uint256)")));
 }
@@ -2234,7 +2234,7 @@ Much like abi.encode and abi.encodePacked, the EVM offers us a way to encode our
 
 We can write another function to compile this data for our function call for us.
 
-```js
+```solidity
 function getDataToCallTransfer(address someAddress, uint256 amount) public pure returns(bytes memory){
     return abi.encodeWithSelector(getSelectorOne(), someAddress, amount);
 }
@@ -2248,7 +2248,7 @@ If we compile CallAnything.sol and redeploy in Remix, we can call this function 
 
 This is the data we would need to pass a low-level `call` in order to call the transfer function with our given parameters. We can now write a function that uses this data to make the function call.
 
-```js
+```solidity
 function callTransferWithBinary(address someAddress, uint256 amount) public returns(bytes4, bool){
     (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(getSelectorOne(), someAddress, amount));
 }
@@ -2265,7 +2265,7 @@ In the above we're sending our function call to the contract's own address, but 
 
 Typically we'd see something requiring success to be true, but for our example we'll just have our function return these values.
 
-```js
+```solidity
 function callTransferWithBinary(address someAddress, uint256 amount) public returns(bytes4, bool){
     (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(getSelectorOne(), someAddress, amount));
 
@@ -2296,7 +2296,7 @@ With this transaction complete, we should be able to repoll the storage variable
 
 ...and they are! Amazing! Another option Solidity affords us is the ability to encode with a signature. This effectively saves us a step since we don't have to determine the function selector first.
 
-```js
+```solidity
 function callTransferWithBinarySignature(address someAddress, uint256 amount) public returns(bytes4, bool){
     (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSignature("transfer(address,uint256)", someAddress, amount));
 
@@ -2314,7 +2314,7 @@ We wont walk through all the different methods here, but I've provided some of t
 
 CallAnything.sol
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 
 // So why do we care about all this encoding stuff?
@@ -2411,7 +2411,7 @@ One last thing I want to point out is that we're not limited to this kind of int
 
 CallFunctionWithoutContract
 
-```js
+```solidity
 contract CallFunctionWithoutContract {
     address public s_selectorsAndSignaturesAddress;
 
